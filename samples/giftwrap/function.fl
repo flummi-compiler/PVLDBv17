@@ -1,0 +1,45 @@
+FUN giftwrap(cloud: §int§) -> §int§ : {
+  poh0      : §struct(cloud int, label int, x int, y int)§;
+  poh       : §struct(cloud int, label int, x int, y int)§;
+  poh0_label: §int§;
+  poh_label : §int§;
+  poh_x     : §int§;
+  poh_y     : §int§;
+
+  -- poh0 is leftmost point in S (and is on the hull)
+  poh0 <- §
+    SELECT p
+    FROM   points AS p
+    WHERE  p.cloud = {0}
+    ORDER BY p.x
+    LIMIT 1
+  §[cloud];
+
+  poh0_label <- §{0}.label§[poh0];
+  poh_label <- §{0}.label§[poh0];
+  poh_x <- §{0}.x§[poh0];
+  poh_y <- §{0}.y§[poh0];
+
+  LOOP loop {
+    -- emit point on hull
+    EMIT §{0}§[poh_label];
+
+    -- find point p1 in S such that no point p2 in S is to the left of line poh—p1
+    poh <- §
+      SELECT p1
+      FROM   points AS p1
+      WHERE  p1.cloud = {0}
+      AND    p1.label <> {1}
+      AND    NOT EXISTS (SELECT 1
+                         FROM   points AS p2
+                         WHERE  left_of(p2.x, p2.y, {2}, {3}, p1.x, p1.y)
+                         AND    p2.cloud = {0})
+    §[cloud, poh_label, poh_x, poh_y];
+
+    poh_label <- §{0}.label§[poh];
+    poh_x <- §{0}.x§[poh];
+    poh_y <- §{0}.y§[poh];
+
+    IF §{0} = {1}§[poh_label, poh0_label] THEN STOP ELSE NOOP
+  }
+}
