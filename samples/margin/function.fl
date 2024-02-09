@@ -1,0 +1,66 @@
+-- If we replace equivalent parts in the order for orderkey o,
+-- what is the margin we can obtain?
+-- (N.B. the margin is 0.0 for most orders, yet some orders yield
+--       substantial potential savings)
+FUN margin(orderkey: §int§) -> §float§: {
+  margin  : §float§;
+  items   : §int§;
+  p1      : §int§;
+  p2      : §int§;
+  part1   : §struct(partkey int, price float)§;
+  part2   : §struct(partkey int, price float)§;
+  cheapest: §float§;
+  pmargin : §float§;
+
+  margin <- §0§[];
+  items  <- §
+    SELECT COUNT(*)
+    FROM   lineitem AS l
+    WHERE  l.l_orderkey = {0}
+    §[orderkey];
+
+  p1 <- §{0}§[items];
+  LOOP outer {
+    IF §{0} < 1§[p1]
+    THEN BREAK outer
+    ELSE {
+      part1 <- §
+        SELECT struct_pack(partkey := l.l_partkey, price := l.l_extendedprice * (1 - l.l_discount) * (1 + l.l_tax))
+        FROM   lineitem AS l
+        WHERE  l.l_orderkey = {0}
+        AND    l.l_linenumber = {1}
+        §[orderkey,p1];
+      cheapest <- §{0}.price§[part1];
+
+      pmargin  <- §0§[];
+      p2       <- §{0}§[items];
+      LOOP inner {
+        IF §{0} < 1§[p2]
+        THEN BREAK inner
+        ELSE {
+          part2 <- §
+            SELECT struct_pack(partkey := l.l_partkey, price := l.l_extendedprice * (1 - l.l_discount) * (1 + l.l_tax))
+            FROM   lineitem AS l
+            WHERE  l.l_orderkey = {0}
+            AND    l.l_linenumber = {1}
+            §[orderkey,p2];
+          IF §{0}.partkey = {1}.partkey§[part1,part2]
+          THEN {
+            IF §{0}.price < {1}§[part2,cheapest]
+            THEN {
+              pmargin  <- §{0}.price - {1}.price§[part1,part2];
+              cheapest <- §{0}.price§[part2]
+            } ELSE NOOP
+          } ELSE NOOP;
+          p2 <- §{0} - 1§[p2]
+        }
+      };
+
+      margin <- §{0} + {1}§[margin,pmargin];
+      p1 <- §{0} - 1§[p1]
+    }
+  };
+
+  EMIT §{0}§[margin];
+  STOP
+}
