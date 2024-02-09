@@ -1,0 +1,43 @@
+FUN force(body: §struct(pos point, mass float)§, theta: §float§) -> §point§: {
+  force: §point§;
+  G    : §float§;
+  Q    : §barneshut[]§;
+  node : §barneshut§;
+  dist : §float§;
+  dir  : §point§;
+  grav : §point§;
+
+  force <- §point(0,0)§[];
+  G     <- §6.67e-11§[];
+  node  <- §SELECT b FROM barneshut AS b WHERE b.node = 0§[];
+  Q     <- §array[{0}]§[node];
+
+  LOOP loop {
+    node <- §{0}[1]§[Q];
+    Q    <- §{0}[2:]§[Q];
+
+    dist <- §GREATEST(distance({0}.center, {1}.pos), 1e-10)§[node, body];
+    dir  <- §point({0}.center.x - {1}.pos.x, {0}.center.y - {1}.pos.y)§[node, body];
+
+    IF §
+      NOT EXISTS (SELECT 1
+                  FROM   walls AS w
+                  WHERE  left_of({0}.pos, w.wall) <> left_of({1}.center, w.wall))
+    §[body, node]
+    THEN grav <- §point(({0} * {1}.mass * {2}.mass / {3}^2) * {4}.x,
+                        ({0} * {1}.mass * {2}.mass / {3}^2) * {4}.y)§[G, body, node, dist, dir]
+    ELSE grav <- §point(0,0)§[];
+
+    IF §{0}.node IS NULL OR width({0}.bbox) / {1} < {2}§[node, dist, theta]
+    THEN force <- §point({0}.x + {1}.x, {0}.y + {1}.y)§[force, grav]
+    ELSE Q <- §
+      SELECT {0} || list(b)
+      FROM   barneshut AS b
+      WHERE  b.parent = {1}.node§[Q, node];
+
+    IF §len({0}) > 0§[Q] THEN CONTINUE loop ELSE BREAK loop
+  };
+
+  EMIT §{0}§[force];
+  STOP
+}

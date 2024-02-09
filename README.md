@@ -13,28 +13,29 @@ _Artifacts accompanying our PLVDBv17 paper of the same name._
 │  │  ├╴ cfg.pdf          #       - Rendering of the optimized CFG
 │  │  ├╴ flummi.sql       #       - Calling query using Flummi-compiled function
 │  │  ├╴ function.fl      #       - Equivalent imperative version
-│  │  ├╴ lateral.sql      #       - Calling query using PL/SQL-to-SQL-compiled function
-│  │  ├╴ plsql.sql        #       - Equivalent PL/SQL version
-┊  ┊  └╴ umbrascript.sql  #       - Equivalent UmbraScript version
+│  │  ├╴ lateral.sql      #       - Calling query using PL/SQL-to-SQL-compiled function (optional, see below)
+│  │  ├╴ plsql.sql        #       - Equivalent PL/SQL version (optional, see below)
+┊  ┊  └╴ umbrascript.sql  #       - Equivalent UmbraScript version (optional, see below)
 ```
 
 ## Samples
 
-In our paper we do not present each of the samples in all possible implementations/variants, this is reflected in this repository as well. The following table shows which implementations/variations this repository provides for which sample.
+In our paper we do not present each of the samples in all possible implementations, this is reflected in this repository as well.
+The following table shows which implementations—aside from `flummi.sql` and `function.fl`—this repository provides for which sample.
 
-| Sample     | `flummi.sql` | `function.fl` | `lateral.sql` | `plsql.sql` | `umbrascript.sql` |
-| :--------- | :----------: | :-----------: | :-----------: | :---------: | :---------------: |
-| `giftwrap` |      ✔︎       |       ✔︎       |       ✔︎       |      ✔︎      |         ✔︎         |
-| `march`    |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
-| `vm`       |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
-| `oil`      |      ✔︎       |       ✔︎       |       ✔︎       |      ✔︎      |         ✘         |
-| `visible`  |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
-| `force`    |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
-| `ray`      |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
-| `ship`     |      ✔︎       |       ✔︎       |       ✔︎       |      ✔︎      |         ✘         |
-| `late`     |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✔︎         |
-| `supply`   |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✔︎         |
-| `savings`  |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✔︎         |
-| `margin`   |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✔︎         |
-| `sched`    |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
-| `packing`  |      ✔︎       |       ✔︎       |       ✔︎       |      ✔︎      |         ✔︎         |
+| Sample     | `lateral.sql` | `plsql.sql` | `umbrascript.sql` |
+| :--------- | :-----------: | :---------: | :---------------: |
+| `force`    |       ✘       |      ✘      |         ✘         |
+| `giftwrap` |       ✔︎       |      ✔︎      |         ✔︎         |
+| `late`     |       ✘       |      ✘      |         ✔︎         |
+| `march`    |       ✘       |      ✘      |         ✘         |
+| `margin`   |       ✘       |      ✘      |         ✔︎         |
+| `oil`      |       ✔︎       |      ✔︎      |         ✘         |
+| `packing`  |       ✔︎       |      ✔︎      |         ✔︎         |
+| `ray`      |       ✘       |      ✘      |         ✘         |
+| `savings`  |       ✘       |      ✘      |         ✔︎         |
+| `sched`    |       ✘       |      ✘      |         ✘         |
+| `ship`     |       ✔︎       |      ✔︎      |         ✘         |
+| `supply`   |       ✘       |      ✘      |         ✔︎         |
+| `visible`  |       ✘       |      ✘      |         ✘         |
+| `vm`       |       ✘       |      ✘      |         ✘         |
