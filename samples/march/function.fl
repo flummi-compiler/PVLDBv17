@@ -1,0 +1,26 @@
+FUN march(current_x: §int§, current_y: §int§) -> §struct(x int, y int)§: {
+  goal_x   : §int§;
+  goal_y   : §int§;
+  direction: §struct(x int, y int)§;
+
+  goal_x <- §{0}§[current_x];
+  goal_y <- §{0}§[current_y];
+
+  LOOP loop {
+    direction <- §
+      SELECT d.dir
+      FROM   squares AS s NATURAL JOIN directions AS d
+      WHERE  s.x = {0}
+      AND    s.y = {1}
+    §[current_x, current_y];
+
+    EMIT §({0}, {1})§[current_x, current_y];
+
+    current_x <- §{0} + {1}.x§[current_x, direction];
+    current_y <- §{0} + {1}.y§[current_y, direction];
+
+    IF §{0} = {1} AND {2} = {3} OR {4} IS NULL§[current_x, goal_x, current_y, goal_y, direction]
+    THEN STOP
+    ELSE CONTINUE loop
+  }
+}
