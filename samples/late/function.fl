@@ -1,0 +1,37 @@
+FUN late(suppkey: §int§, orderkey: §int§) -> §bool§: {
+  current_item: §int§;
+  lineitem: §struct(l_receiptdate date, l_commitdate date, l_suppkey int)§;
+  blame: §bool§;
+  multi: §bool§;
+  condition: §bool§;
+
+  blame <- §false§[];
+  multi <- §false§[];
+
+  current_item <- §SELECT MAX(l.l_linenumber) FROM lineitem AS l WHERE l.l_orderkey = {0}§[orderkey];
+  LOOP loop {
+    IF §{0} < 1§[current_item]
+    THEN BREAK loop
+    ELSE {
+      lineitem <- §
+        SELECT (l.l_receiptdate, l.l_commitdate, l.l_suppkey)
+        FROM   lineitem AS l
+        WHERE  l.l_orderkey = {0}
+        AND    l.l_linenumber = {1}
+      §[orderkey, current_item];
+
+      multi <- §{0} OR {1}.l_suppkey <> {2}§[multi, lineitem, suppkey];
+      IF §{0}.l_receiptdate > {0}.l_commitdate§[lineitem]
+      THEN {
+        IF §{0}.l_suppkey <> {1}§[lineitem, suppkey]
+        THEN { EMIT §false§[]; STOP }
+        ELSE blame <- §true§[]
+      } ELSE NOOP;
+
+      current_item <- §{0} - 1§[current_item]
+    }
+  };
+
+  EMIT §{0} AND {1}§[multi, blame];
+  STOP
+}
