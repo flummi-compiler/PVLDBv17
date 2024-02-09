@@ -22,19 +22,19 @@ _Artifacts accompanying our PLVDBv17 paper of the same name._
 
 In our paper we do not present each of the samples in all possible implementations/variants, this is reflected in this repository as well. The following table shows which implementations/variations this repository provides for which sample.
 
-| Sample     |              `flummi.sql`              |             `function.fl`              |             `lateral.sql`              |              `plsql.sql`               |           `umbrascript.sql`            |
-| :--------- | :------------------------------------: | :------------------------------------: | :------------------------------------: | :------------------------------------: | :------------------------------------: |
-| `giftwrap` | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> |
-| `march`    | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> |
-| `vm`       | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> |
-| `oil`      | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> |
-| `visible`  | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> |
-| `force`    | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> |
-| `ray`      | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> |
-| `ship`     | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> |
-| `late`     | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #198754;">✔︎</span> |
-| `supply`   | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #198754;">✔︎</span> |
-| `savings`  | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #198754;">✔︎</span> |
-| `margin`   | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #198754;">✔︎</span> |
-| `sched`    | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> | <span style="color: #dc3545;">✘</span> |
-| `packing`  | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> | <span style="color: #198754;">✔︎</span> |
+| Sample     | `flummi.sql` | `function.fl` | `lateral.sql` | `plsql.sql` | `umbrascript.sql` |
+| :--------- | :----------: | :-----------: | :-----------: | :---------: | :---------------: |
+| `giftwrap` |      ✔︎       |       ✔︎       |       ✔︎       |      ✔︎      |         ✔︎         |
+| `march`    |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
+| `vm`       |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
+| `oil`      |      ✔︎       |       ✔︎       |       ✔︎       |      ✔︎      |         ✘         |
+| `visible`  |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
+| `force`    |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
+| `ray`      |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
+| `ship`     |      ✔︎       |       ✔︎       |       ✔︎       |      ✔︎      |         ✘         |
+| `late`     |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✔︎         |
+| `supply`   |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✔︎         |
+| `savings`  |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✔︎         |
+| `margin`   |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✔︎         |
+| `sched`    |      ✔︎       |       ✔︎       |       ✘       |      ✘      |         ✘         |
+| `packing`  |      ✔︎       |       ✔︎       |       ✔︎       |      ✔︎      |         ✔︎         |
