@@ -1,0 +1,43 @@
+FUN visible(here: §point§, there: §point§, resolution: §int§) -> §bool§: {
+  i        : §int§;
+  step     : §point§;
+  loc      : §point§;
+  hhere    : §float§;
+  hloc     : §float§;
+  angle    : §float§;
+  max_angle: §float§;
+
+  hhere <- §
+    SELECT SUM(s.z * (2-dist)^2) / SUM((2-dist)^2) AS hhere
+    FROM   surface AS s, LATERAL (SELECT (sqrt((s.x-{0}.x)^2 + (s.y-{0}.y)^2))) AS _(dist)
+    WHERE  dist < 2
+  §[here];
+
+  step <- §(({0}.x - {1}.x) / {2}, ({0}.y - {1}.y) / {2}) :: point§[there, here, resolution];
+  loc <- §{0}§[here];
+
+  max_angle <- §NULL :: float§[];
+
+  i <- §1§[];
+  LOOP loop {
+    IF §{0} > {1}§[i,resolution]
+    THEN BREAK loop
+    ELSE {
+      i <- §{0} + 1§[i];
+      loc <- §({0}.x + {1}.x, {0}.y + {1}.y) :: point§[loc,step];
+      hloc <- §
+        SELECT SUM(s.z * (2-dist)^2) / SUM((2-dist)^2) AS hhere
+        FROM   surface AS s, LATERAL (SELECT (sqrt((s.x-{0}.x)^2 + (s.y-{0}.y)^2))) AS _(dist)
+        WHERE  dist < 2
+      §[loc];
+      angle <- §degrees(atan(({0} - {1}) / sqrt(({2}.x - {3}.x) ** 2 + ({2}.y - {3}.y) ** 2)))§[hloc,hhere,loc,here];
+
+      IF §{0} IS NULL OR {1} > {2}§[max_angle,angle,max_angle]
+      THEN max_angle <- §{0}§[angle]
+      ELSE NOOP
+    }
+  };
+
+  EMIT §{0} = {1}§[angle,max_angle];
+  STOP
+}

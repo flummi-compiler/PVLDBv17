@@ -37,5 +37,5 @@ The following table shows which implementations—aside from `flummi.sql` and `f
 | `sched`    |       ✘       |      ✘      |         ✘         |
 | `ship`     |       ✔︎       |      ✔︎      |         ✘         |
 | `supply`   |       ✘       |      ✘      |         ✔︎         |
-| `visible`  |       ✘       |      ✘      |         ✘         |
+| `visible`  |       ✘       |      ✘      |         ✔︎         |
 | `vm`       |       ✘       |      ✘      |         ✘         |
