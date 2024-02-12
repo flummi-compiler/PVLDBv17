@@ -1,0 +1,53 @@
+FUN run(a: §double§) -> §double§: {
+  ins : §instruction§;
+  ip  : §int§;
+  x   : §double§;
+  y   : §double§;
+  z   : §double§;
+  n   : §double§;
+  zero: §bool§;
+
+  ip   <- §0§[];
+  zero <- §false§[];
+
+  LOOP loop {
+    ins <- §
+      SELECT p
+      FROM   program AS p
+      WHERE  p.loc = {0}
+    §[ip];
+
+    ip <- §{0} + 1§[ip];
+
+         IF §{0}.opc = 'lda'§[ins] THEN a <- §{0}.arg§[ins]
+    ELSE IF §{0}.opc = 'ldx'§[ins] THEN x <- §{0}.arg§[ins]
+    ELSE IF §{0}.opc = 'ldy'§[ins] THEN y <- §{0}.arg§[ins]
+    ELSE IF §{0}.opc = 'ldz'§[ins] THEN z <- §{0}.arg§[ins]
+    ELSE IF §{0}.opc = 'tan'§[ins] THEN n <- §{0}§[a]
+    ELSE IF §{0}.opc = 'tax'§[ins] THEN x <- §{0}§[a]
+    ELSE IF §{0}.opc = 'tay'§[ins] THEN y <- §{0}§[a]
+    ELSE IF §{0}.opc = 'taz'§[ins] THEN z <- §{0}§[a]
+    ELSE IF §{0}.opc = 'tna'§[ins] THEN a <- §{0}§[n]
+    ELSE IF §{0}.opc = 'txa'§[ins] THEN a <- §{0}§[x]
+    ELSE IF §{0}.opc = 'tya'§[ins] THEN a <- §{0}§[y]
+    ELSE IF §{0}.opc = 'tza'§[ins] THEN a <- §{0}§[z]
+    ELSE IF §{0}.opc = 'txy'§[ins] THEN y <- §{0}§[x]
+    ELSE IF §{0}.opc = 'txz'§[ins] THEN z <- §{0}§[x]
+    ELSE IF §{0}.opc = 'tyx'§[ins] THEN x <- §{0}§[y]
+    ELSE IF §{0}.opc = 'tyz'§[ins] THEN z <- §{0}§[y]
+    ELSE IF §{0}.opc = 'tzx'§[ins] THEN x <- §{0}§[z]
+    ELSE IF §{0}.opc = 'tzy'§[ins] THEN y <- §{0}§[z]
+    ELSE IF §{0}.opc = 'inc'§[ins] THEN { n <- §{0} + {1}.arg§[n,ins]; zero <- §{0} = 0§[n] }
+    ELSE IF §{0}.opc = 'dec'§[ins] THEN { n <- §{0} - {1}.arg§[n,ins]; zero <- §{0} = 0§[n] }
+    ELSE IF §{0}.opc = 'add'§[ins] THEN { a <- §{0} + {1}§[a,x];       zero <- §{0} = 0§[a] }
+    ELSE IF §{0}.opc = 'sub'§[ins] THEN { a <- §{0} - {1}§[a,x];       zero <- §{0} = 0§[a] }
+    ELSE IF §{0}.opc = 'mul'§[ins] THEN { a <- §{0} * {1}§[a,x];       zero <- §{0} = 0§[a] }
+    ELSE IF §{0}.opc = 'div'§[ins] THEN { a <- §{0} / {1}§[a,x];       zero <- §{0} = 0§[a] }
+    ELSE IF §{0}.opc = 'mod'§[ins] THEN { a <- §{0} % {1}§[a,x];       zero <- §{0} = 0§[a] }
+    ELSE IF §{0}.opc = 'eq0'§[ins] THEN IF §{0}§[zero] THEN ip <- §{0}.arg§[ins] ELSE CONTINUE loop
+    ELSE IF §{0}.opc = 'jmp'§[ins] THEN ip <- §{0}.arg§[ins]
+    ELSE IF §{0}.opc = 'emt'§[ins] THEN EMIT §{0}§[a]
+    ELSE IF §{0}.opc = 'hlt'§[ins] THEN STOP
+    ELSE CONTINUE loop
+  }
+}
