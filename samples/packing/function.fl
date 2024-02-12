@@ -1,0 +1,74 @@
+FUN pack_order(orderkey: §int§, capacity: §int§) -> §text§: {
+  n          : §int§;
+  items      : §int§;
+  size       : §int§;
+  subset     : §int§;
+  max_size   : §int§;
+  max_subset : §int§;
+  pack       : §text§;
+  linenumber : §int§;
+
+  -- # of lineitems in order
+  n <- §SELECT COUNT(*) :: int FROM lineitem AS l WHERE l.l_orderkey = {0}§[orderkey];
+
+  -- orderkey not found or container capacity sufficient to hold the largest part?
+  IF §{0} = 0 OR capacity < (SELECT MAX(p.p_size) FROM lineitem AS l, part AS p WHERE l.l_orderkey = {1} AND l.l_partkey = p.p_partkey)§[n, orderkey]
+  THEN STOP
+  ELSE {
+    items <- §(1 << {0}) - 1§[n];
+
+    LOOP outer {
+      -- as long as there are still lineitems to pack...
+      IF §{0} = 0§[items]
+      THEN STOP
+      ELSE {
+        max_size <- §0§[];
+        max_subset <- §0§[]; -- ∅
+
+        -- iterate through all non-empty subsets of items
+        subset <- §{0} & -{0}§[items];
+
+        LOOP inner_1 {
+          -- find size of current lineitem subset o
+          size <- §SELECT SUM(p.p_size) FROM lineitem AS l, part AS p WHERE l.l_orderkey = {0} AND {1} & (1 << l.l_linenumber - 1) <> 0 AND l.l_partkey = p.p_partkey§[orderkey, subset];
+
+          IF §{0} <= {1} AND {0} > {2}§[size, capacity, max_size]
+          THEN {
+            max_size <- §{0}§[size];
+            max_subset <- §{0}§[subset]
+          }
+          ELSE NOOP;
+
+          IF §{0} = {1}§[subset, items]
+          -- exit if iterated through all lineitem subsets ...
+          THEN BREAK inner_1
+          -- ... else, consider next lineitem subset
+          ELSE subset <- §{0} & ({1} - {0})§[items, subset]
+        };
+
+        -- convert bit set max_subset into set of linenumbers
+        pack <- §''§[];
+        linenumber <- §0§[];
+        LOOP inner_2 {
+          linenumber <- §{0} + 1§[linenumber];
+          IF §{0} > {1}§[linenumber, n]
+          THEN BREAK inner_2
+          ELSE {
+            IF §{0} & (1 << {1} - 1) <> 0§[max_subset, linenumber]
+            THEN pack <- §{0} || '#'§[pack]
+            ELSE pack <- §{0} || '.'§[pack]
+          }
+        };
+
+        -- emit pack
+        EMIT §{0}§[pack];
+
+        -- we've selected lineitems in set max_subset,
+        -- update items to remove these lineitems
+        items <- §{0} & (-{1} - 1)§[items, max_subset]
+        -- ⚠️ if pointwise inversion is supported as an operator use it instead ;)
+        -- items <- §{0} & ~{1}§[items, max_subset]
+      }
+    }
+  }
+}
