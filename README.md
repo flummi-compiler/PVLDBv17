@@ -33,7 +33,7 @@ The following table shows which implementations—aside from `flummi.sql` and `f
 | `oil`      |       ✔︎       |      ✔︎      |         ✘         |
 | `packing`  |       ✔︎       |      ✔︎      |         ✔︎         |
 | `ray`      |       ✘       |      ✘      |         ✘         |
-| `savings`  |       ✘       |      ✘      |         ✔︎         |
+| `savings`  |       ✘       |      ✘      |         ✘         |
 | `sched`    |       ✘       |      ✘      |         ✘         |
 | `ship`     |       ✔︎       |      ✔︎      |         ✘         |
 | `supply`   |       ✘       |      ✘      |         ✔︎         |

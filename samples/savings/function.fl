@@ -1,0 +1,53 @@
+FUN optimize(orderkey: §int§) -> §struct(part int, savings double, old_supp int, new_supp int)§ : {
+  current_item : §int§;
+  lineitem     : §struct(l_partkey int, l_suppkey int, l_quantity int)§;
+  cur_supplier : §struct(ps_suppkey int, ps_supplycost double)§;
+  min_supplier : §struct(ps_suppkey int, ps_supplycost double)§;
+
+  IF §SELECT NOT EXISTS(SELECT 1 FROM orders AS o WHERE o.o_orderkey = {0})§[orderkey]
+  THEN STOP
+  ELSE {
+    current_item <- §SELECT MAX(l.l_linenumber) FROM lineitem AS l WHERE l.l_orderkey = {0}§[orderkey];
+    LOOP loop {
+      IF §{0} < 1§[current_item]
+      THEN BREAK loop
+      ELSE {
+        lineitem <- §
+          SELECT (l.l_partkey, l.l_suppkey, l.l_quantity)
+          FROM   lineitem AS l
+          WHERE  l.l_orderkey = {0}
+          AND    l.l_linenumber = {1}
+        §[orderkey, current_item];
+
+        cur_supplier <- §
+          SELECT (ps.ps_suppkey, ps.ps_supplycost)
+          FROM   partsupp AS ps
+          WHERE  ps.ps_partkey = {0}.l_partkey
+          AND    ps.ps_suppkey = {0}.l_suppkey
+        §[lineitem];
+
+        min_supplier <- §
+          SELECT (ps.ps_suppkey, ps.ps_supplycost)
+          FROM   partsupp AS ps
+          WHERE  ps.ps_partkey = {0}.l_partkey
+          AND    ps.ps_availqty >= {0}.l_quantity
+          ORDER BY ps.ps_supplycost, ps.ps_suppkey
+          LIMIT 1
+        §[lineitem];
+
+        IF §{0}.ps_suppkey <> {1}.ps_suppkey§[cur_supplier, min_supplier]
+        THEN EMIT §
+            {{
+              part: {0}.l_partkey,
+              savings: (1 - {2}.ps_supplycost / {1}.ps_supplycost) * 100,
+              old_supp: {1}.ps_suppkey,
+              new_supp: {2}.ps_suppkey
+            }}
+          §[lineitem,cur_supplier,min_supplier]
+        ELSE NOOP;
+
+        current_item <- §{0} - 1§[current_item]
+      }
+    }
+  }
+}
