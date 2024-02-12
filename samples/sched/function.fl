@@ -1,0 +1,78 @@
+FUN schedule(orderkey: §int§) -> §struct(item int, start date)§ : {
+  details       : §struct(items int, last_shipdate date)§;
+  lineitem      : §struct(l_linenumber int, l_shipdate date, l_quantity double)§;
+  busy          : §struct(start date, finish date)[]§;
+  new_end       : §date§;
+  priority      : §int§;
+  item_start    : §date§;
+  item_end      : §date§;
+  schedule_start: §date§;
+  schedule_end  : §date§;
+
+  schedule_start <- §
+    SELECT o.o_orderdate
+    FROM   orders AS o
+    WHERE  o.o_orderkey = {0}
+  §[orderkey];
+
+  IF §{0} IS NULL§[schedule_start]
+  THEN STOP
+  ELSE {
+    details <- §
+      SELECT {{items: COUNT(*), last_shipdate: MAX(l.l_shipdate)}}
+      FROM   lineitem AS l
+      WHERE  l.l_orderkey = {0}
+    §[orderkey];
+
+    schedule_end <- §{0}.last_shipdate§[details];
+    busy <- §ARRAY[] :: struct(start date, finish date)[]§[];
+    priority <- §1§[];
+
+    LOOP outer_loop {
+      IF §{0} > {1}.items§[priority,details]
+      THEN STOP
+      ELSE {
+        lineitem <- §
+          SELECT l.lineitem
+          FROM   (SELECT ROW_NUMBER() OVER (ORDER BY p.p_retailprice),
+                         {{l_linenumber: l.l_linenumber,
+                          l_shipdate:   l.l_shipdate,
+                          l_quantity:   l.l_quantity}}
+                  FROM   lineitem AS l, part AS p
+                  WHERE  l.l_orderkey = {0}
+                  AND    l.l_partkey = p.p_partkey) AS l(priority, lineitem)
+          WHERE   l.priority = {1}
+        §[orderkey,priority];
+
+        item_end <- §LEAST({0}.l_shipdate, {1})§[lineitem,schedule_end];
+        item_start <- §{0} - {1}.l_quantity :: int§[item_end,lineitem];
+
+        LOOP inner_loop {
+          new_end <- §
+            SELECT slot.start
+            FROM   unnest({0}) AS _(slot)
+            WHERE  slot.start < {1}
+            AND    {2} < slot.finish
+            ORDER BY (slot.start, slot.finish)
+            LIMIT  1
+          §[busy,item_end,item_start];
+
+          IF §{0} >= {1} AND {2} IS NOT NULL§[item_start,schedule_start,new_end]
+          THEN {
+            item_end <- §{0}§[new_end];
+            item_start <- §{0} - {1}.l_quantity :: int§[item_end,lineitem]
+          }
+          ELSE BREAK inner_loop
+        };
+
+        IF §{0} >= {1}§[item_start,schedule_start]
+        THEN {
+          busy <- §list_append({0}, ({1}, {2}))§[busy,item_start,item_end];
+          EMIT §({0}.l_linenumber, {1})§[lineitem,item_start]
+        } ELSE NOOP;
+
+        priority <- §{0} + 1§[priority]
+      }
+    }
+  }
+}
