@@ -1,0 +1,56 @@
+FUN savings(orderkey: §int§) -> §float§: {
+  savings       : §float§;
+  lineitems     : §struct(partkey int, suppkey int, quantity int)[]§;
+  lineitem      : §struct(partkey int, suppkey int, quantity int)§;
+  i             : §int§;
+  min_supplycost: §float§;
+  cur_supplycost: §float§;
+
+  savings <- §0§[];
+
+  lineitems <- §
+    SELECT ARRAY_AGG({{
+      partkey: l.l_partkey,
+      suppkey: l.l_suppkey,
+      quantity: l.l_quantity :: int
+    }})
+    FROM   lineitem AS l
+    WHERE  l.l_orderkey = {0}
+  §[orderkey];
+
+  i <- §LEN({0})§[lineitems];
+
+  LOOP loop {
+    IF §{0} < 1§[i]
+    THEN BREAK loop
+    ELSE {
+      lineitem <- §{0}[{1}]§[lineitems,i];
+
+      cur_supplycost <- §
+        SELECT ps.ps_supplycost
+        FROM   partsupp AS ps
+        WHERE  ps.ps_partkey = {0}.partkey
+        AND    ps.ps_suppkey = {0}.suppkey
+      §[lineitem];
+
+      min_supplycost <- §
+        SELECT MIN(ps.ps_supplycost)
+        FROM   partsupp AS ps
+        WHERE  ps.ps_partkey = {0}.partkey
+        AND    ps.ps_availqty >= {0}.quantity
+      §[lineitem];
+
+      IF §{0} > {1}§[cur_supplycost,min_supplycost]
+      THEN {
+        savings <- §
+          {0} + ({1} - {2}) * {3}.quantity
+        §[savings,cur_supplycost,min_supplycost,lineitem]
+      } ELSE NOOP;
+
+      i <- §{0} - 1§[i]
+    }
+  };
+
+  EMIT §{0}§[savings];
+  STOP
+}
