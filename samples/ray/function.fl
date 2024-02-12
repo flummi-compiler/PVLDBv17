@@ -1,0 +1,288 @@
+FUN cast_ray(
+  origin_x: §real§,
+  origin_y: §real§,
+  origin_z: §real§,
+
+  direction_x: §real§,
+  direction_y: §real§,
+  direction_z: §real§,
+
+  shadows: §bool§,
+  max_rec_depth: §int§,
+  epsilon: §real§
+) -> §struct(r real, g real, b real)§: {
+  shadow_ray: §bool§;
+  pixel_r: §real§;
+  pixel_g: §real§;
+  pixel_b: §real§;
+  min_dist: §real§;
+  material: §material§;
+  normal_x: §real§;
+  normal_y: §real§;
+  normal_z: §real§;
+  light: §sphere§;
+  light_x: §real§;
+  light_y: §real§;
+  light_z: §real§;
+  step: §int§;
+  id: §int§;
+  dist: §real§;
+  triangle: §triangle§;
+  e1_x: §real§;
+  e1_y: §real§;
+  e1_z: §real§;
+  e2_x: §real§;
+  e2_y: §real§;
+  e2_z: §real§;
+  P_x: §real§;
+  P_y: §real§;
+  P_z: §real§;
+  det: §real§;
+  T1_x: §real§;
+  T1_y: §real§;
+  T1_z: §real§;
+  u: §real§;
+  Q_x: §real§;
+  Q_y: §real§;
+  Q_z: §real§;
+  v: §real§;
+  sphere: §sphere§;
+  L_x: §real§;
+  L_y: §real§;
+  L_z: §real§;
+  d2: §real§;
+  tca: §real§;
+  thc: §real§;
+  color_r: §real§;
+  color_g: §real§;
+  color_b: §real§;
+
+  length: §real§;
+
+  shadow_ray <- §false§[];
+
+  pixel_r <- §0§[];
+  pixel_g <- §0§[];
+  pixel_b <- §0§[];
+
+  light <- §SELECT s FROM spheres AS s WHERE material = 'l'§[];
+  light_x <- §{0}.center_x§[light];
+  light_y <- §{0}.center_y§[light];
+  light_z <- §{0}.center_z§[light];
+
+  step <- §0§[];
+  LOOP ray_loop {
+    length <- §sqrt({0} ** 2 + {1} ** 2 + {2} ** 2)§[direction_x, direction_y, direction_z];  -- } length = |direction|
+    direction_x <- §{0} / {1}§[direction_x, length];  -- ⎫
+    direction_y <- §{0} / {1}§[direction_y, length];  -- ⎬ direction = direction / length
+    direction_z <- §{0} / {1}§[direction_z, length];  -- ⎭
+
+    min_dist <- §'Infinity' :: real§[];
+    material <- §'n'§[];
+
+    normal_x <- §0§[];  -- ⎫          ⎛0⎞
+    normal_y <- §0§[];  -- ⎬ normal = ⎢0⎥
+    normal_z <- §0§[];  -- ⎭          ⎝0⎠
+
+    id <- §SELECT MAX(t.id) FROM triangles AS t§[];
+    LOOP triangle_loop {
+      triangle <- §SELECT t FROM triangles AS t WHERE t.id = {0}§[id];
+
+      e1_x <- §{0}.p2_x - {0}.p1_x§[triangle];  -- ⎫
+      e1_y <- §{0}.p2_y - {0}.p1_y§[triangle];  -- ⎬ e1 = p2 - p1
+      e1_z <- §{0}.p2_z - {0}.p1_z§[triangle];  -- ⎭
+
+      e2_x <- §{0}.p3_x - {0}.p1_x§[triangle];  -- ⎫
+      e2_y <- §{0}.p3_y - {0}.p1_y§[triangle];  -- ⎬ e2 = p3 - p1
+      e2_z <- §{0}.p3_z - {0}.p1_z§[triangle];  -- ⎭
+
+      P_x <- §{0} * {1} - {2} * {3}§[direction_y, e2_z, direction_z, e2_y];  -- ⎫
+      P_y <- §{0} * {1} - {2} * {3}§[direction_z, e2_x, direction_x, e2_z];  -- ⎬ P = direction × e2
+      P_z <- §{0} * {1} - {2} * {3}§[direction_x, e2_y, direction_y, e2_x];  -- ⎭
+
+      det <- §{0} * {1} + {2} * {3} + {4} * {5}§[e1_x, P_x, e1_y, P_y, e1_z, P_z]; -- } det = e1 ⋅ P
+
+      IF §abs({0}) <= {1}§[det, epsilon] THEN NOOP
+      ELSE {
+        T1_x <- §{0} - {1}.p1_x§[origin_x, triangle];  -- ⎫
+        T1_y <- §{0} - {1}.p1_y§[origin_y, triangle];  -- ⎬ T1 = origin - p1
+        T1_z <- §{0} - {1}.p1_z§[origin_z, triangle];  -- ⎭
+
+        u <- §({0} * {1} + {2} * {3} + {4} * {5}) / {6}§[T1_x, P_x, T1_y, P_y, T1_z, P_z, det];  -- } u = (T1 ⋅ P) / det
+
+        IF §{0} NOT BETWEEN 0 AND 1§[u] THEN NOOP
+        ELSE {
+          Q_x <- §{0} * {1} - {2} * {3}§[T1_y, e1_z, T1_z, e1_y];  -- ⎫
+          Q_y <- §{0} * {1} - {2} * {3}§[T1_z, e1_x, T1_x, e1_z];  -- ⎬ Q = T1 × e1
+          Q_z <- §{0} * {1} - {2} * {3}§[T1_x, e1_y, T1_y, e1_x];  -- ⎭
+
+          v <- §({0} * {1} + {2} * {3} + {4} * {5}) / {6}§[direction_x, Q_x, direction_y, Q_y, direction_z, Q_z, det];  -- } v = (direction ⋅ Q) / det
+
+          IF §0 > {0} OR {0} + {1} > 1§[v, u] THEN NOOP
+          ELSE {
+            dist <- §({0} * {1} + {2} * {3} + {4} * {5}) / {6}§[e2_x, Q_x, e2_y, Q_y, e2_z, Q_z, det];  -- } dist = (e2 ⋅ Q) / det
+
+            IF §{0} <= {1} OR {0} >= {2}§[dist, epsilon, min_dist] THEN NOOP
+            ELSE {
+              material <- §{0}.material§[triangle];
+              min_dist <- §{0}§[dist];
+
+              normal_x <- §{0} * {1} - {2} * {3}§[e2_y, e1_z, e2_z, e1_y];  -- ⎫
+              normal_y <- §{0} * {1} - {2} * {3}§[e2_z, e1_x, e2_x, e1_z];  -- ⎬ normal = e2 × e1
+              normal_z <- §{0} * {1} - {2} * {3}§[e2_x, e1_y, e2_y, e1_x];  -- ⎭
+
+              length <- §sqrt({0} ** 2 + {1} ** 2 + {2} ** 2)§[normal_x, normal_y, normal_z];  -- } length = |normal|
+              normal_x <- §{0} / {1}§[normal_x, length];  -- ⎫
+              normal_y <- §{0} / {1}§[normal_y, length];  -- ⎬ normal = normal / length
+              normal_z <- §{0} / {1}§[normal_z, length];  -- ⎭
+
+              IF §{0} * {1} + {2} * {3} + {4} * {5} > 0§[normal_x, direction_x, normal_y, direction_y, normal_z, direction_z]
+              THEN {
+                normal_x <- §{0} * -1§[normal_x];  -- ⎫
+                normal_y <- §{0} * -1§[normal_y];  -- ⎬ normal = -normal
+                normal_z <- §{0} * -1§[normal_z]   -- ⎭
+              } ELSE NOOP;
+
+              IF §{0} = 'm'§[material]
+              THEN {
+                color_r <- §{0}.r§[triangle];
+                color_g <- §{0}.g§[triangle];
+                color_b <- §{0}.b§[triangle]
+              } ELSE NOOP
+            }
+          }
+        }
+      };
+
+      IF §{0} = 0§[id]
+      THEN BREAK triangle_loop
+      ELSE id <- §{0} - 1§[id]
+    };
+
+    id <- §SELECT MAX(s.id) FROM spheres AS s§[];
+    LOOP sphere_loop {
+      sphere <- §SELECT t FROM spheres AS t WHERE t.id = {0}§[id];
+
+      L_x <- §{0}.center_x - {1}§[sphere, origin_x];  -- ⎫
+      L_y <- §{0}.center_y - {1}§[sphere, origin_y];  -- ⎬ L = center - origin
+      L_z <- §{0}.center_z - {1}§[sphere, origin_z];  -- ⎭
+
+      tca <- §{0} * {1} + {2} * {3} + {4} * {5}§[L_x, direction_x, L_y, direction_y, L_z, direction_z];  -- } tca = L ⋅ direction
+
+      d2 <- §{0} ** 2 + {1} ** 2 + {2} ** 2 - {3} ** 2§[L_x, L_y, L_z, tca];  -- } d2 = |L|² - tca²
+
+      IF §{0} > {1}.radius ** 2§[d2, sphere] THEN NOOP
+      ELSE {                                               --          _____________
+        thc <- §sqrt({0}.radius ** 2 - {1})§[sphere, d2];  -- } thc = √radius² - d2`
+        dist <- §least({0} + {1}, greatest({0} - {1}, 0))§[tca, thc];  -- } dist = min(tca + tch, max(tca - thc, 0))
+
+        IF §{0} NOT BETWEEN {1} AND {2}§[dist, epsilon, min_dist] THEN NOOP
+        ELSE {
+          material <- §{0}.material§[sphere];
+          min_dist <- §{0}§[dist];
+
+          normal_x <- §{0} * {1} - {2}.center_x + {3}§[direction_x, dist, sphere, origin_x];  -- ⎫
+          normal_y <- §{0} * {1} - {2}.center_y + {3}§[direction_y, dist, sphere, origin_y];  -- ⎬ normal = direction ⋅ dist - center + origin
+          normal_z <- §{0} * {1} - {2}.center_z + {3}§[direction_z, dist, sphere, origin_z];  -- ⎭
+
+          length <- §sqrt({0} ** 2 + {1} ** 2 + {2} ** 2)§[normal_x, normal_y, normal_z];  -- } length = |normal|
+          normal_x <- §{0} / {1}§[normal_x, length];  -- ⎫
+          normal_y <- §{0} / {1}§[normal_y, length];  -- ⎬ normal = normal / length
+          normal_z <- §{0} / {1}§[normal_z, length];  -- ⎭
+
+          IF §{0} = 'm'§[material]
+          THEN {
+            color_r <- §{0}.r§[sphere];
+            color_g <- §{0}.g§[sphere];
+            color_b <- §{0}.b§[sphere]
+          } ELSE NOOP
+        }
+      };
+
+      IF §{0} = 0§[id]
+      THEN BREAK sphere_loop
+      ELSE id <- §{0} - 1§[id]
+    };
+
+    IF §{0}§[shadow_ray]         -- ⎫
+    THEN {                       -- ⎪
+      IF §{0} <> 'l'§[material]  -- ⎪
+      THEN {                     -- ⎬ If we are handling a shadow ray and haven't
+        pixel_r <- §0§[];        -- ⎪ hit a light we are actually in a shadow!
+        pixel_g <- §0§[];        -- ⎪ Black out the color and be done with it.
+        pixel_b <- §0§[]         -- ⎪
+      } ELSE NOOP;               -- ⎪
+      BREAK ray_loop             -- ⎭
+    } ELSE {
+      IF §{0} = 'l'§[material]
+      THEN {
+        pixel_r <- §1§[];
+        pixel_g <- §1§[];
+        pixel_b <- §1§[]
+      } ELSE
+      IF §{0} = 'm'§[material]
+      THEN {
+        --              Calculate actual hit position
+        --              and set the shadow ray origin
+        --              to that
+        --                ╭────┴────╮
+        origin_x <- §{0} + {1} * {2} + {3} * {4}§[origin_x, direction_x, min_dist, normal_x, epsilon];
+        origin_y <- §{0} + {1} * {2} + {3} * {4}§[origin_y, direction_y, min_dist, normal_y, epsilon];
+        origin_z <- §{0} + {1} * {2} + {3} * {4}§[origin_z, direction_z, min_dist, normal_z, epsilon];
+        --                            ╰────┬────╯
+        --                      Back the shadow rays origin slightly
+        --                      off of the hit surface to avoid hitting
+        --                      the same object again
+
+        direction_x <- §{0} - {1}§[light_x, origin_x];  -- ⎫
+        direction_y <- §{0} - {1}§[light_y, origin_y];  -- ⎬ Direct the shadow ray towards the light source
+        direction_z <- §{0} - {1}§[light_z, origin_z];  -- ⎭
+
+        length <- §sqrt({0} ** 2 + {1} ** 2 + {2} ** 2)§[direction_x, direction_y, direction_z];  -- } length = |direction|
+        direction_x <- §{0} / {1}§[direction_x, length];  -- ⎫
+        direction_y <- §{0} / {1}§[direction_y, length];  -- ⎬ direction = direction / length
+        direction_z <- §{0} / {1}§[direction_z, length];  -- ⎭
+
+        u <- §greatest(0, {0} * {1} + {2} * {3} + {4} * {5})§[direction_x, normal_x, direction_y, normal_y, direction_z, normal_z];
+        pixel_r <- §{0} * {1}§[color_r, u]; -- ⎬ Scale the influence of the materials color
+        pixel_g <- §{0} * {1}§[color_g, u]; -- ⎪ in proportion to the angle difference
+        pixel_b <- §{0} * {1}§[color_b, u]; -- ⎭ between the current ray and the shadow ray
+
+        IF §{0}§[shadows]          -- ⎫
+        THEN {                     -- ⎪ If shadows are enabled...
+          shadow_ray <- §true§[];  -- ⎬   ...fire off a shadow ray
+          CONTINUE ray_loop        -- ⎪   ...otherwise we are done here.
+        } ELSE BREAK ray_loop      -- ⎭
+      } ELSE
+      IF §{0} = 'r'§[material]
+      THEN {
+        --              Calculate actual hit position
+        --              and set the reflection ray origin
+        --              to that
+        --                ╭────┴────╮
+        origin_x <- §{0} + {1} * {2} + {3} * {4}§[origin_x, direction_x, min_dist, normal_x, epsilon];
+        origin_y <- §{0} + {1} * {2} + {3} * {4}§[origin_y, direction_y, min_dist, normal_y, epsilon];
+        origin_z <- §{0} + {1} * {2} + {3} * {4}§[origin_z, direction_z, min_dist, normal_z, epsilon];
+        --                            ╰────┬────╯
+        --                      Back the reflection rays origin slightly
+        --                      off of the hit surface to avoid hitting
+        --                      the same object again
+
+        u <- §2 * ({0} * {1} + {2} * {3} + {4} * {5})§[direction_x, normal_x, direction_y, normal_y, direction_z, normal_z];
+        direction_x <- §{0} - {1} * {2}§[direction_x, normal_x, u];  -- ⎬ Calculate the new ray direction
+        direction_y <- §{0} - {1} * {2}§[direction_y, normal_y, u];  -- ⎪ based on the assumption of perfect
+        direction_z <- §{0} - {1} * {2}§[direction_z, normal_z, u];  -- ⎭ reflection
+
+        IF §{0} < {1}§[step, max_rec_depth]  -- ⎫
+        THEN {                               -- ⎪ If there are still some reflection passes...
+          step <- §{0} + 1§[step];           -- ⎬   ...go in for another round
+          CONTINUE ray_loop                  -- ⎪   ...otherwise we are done here.
+        } ELSE BREAK ray_loop                -- ⎭
+      } ELSE NOOP
+    };
+    BREAK ray_loop
+  };
+
+  EMIT §{{r: {0}, g: {1}, b: {2}}}§[pixel_r, pixel_g, pixel_b];
+  STOP
+}
