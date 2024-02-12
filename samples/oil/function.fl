@@ -1,0 +1,43 @@
+FUN oil(pivot_x: §int§, pivot_y: §int§) -> §struct(x int, y int, yield int)§: {
+  yield: §int§;
+  slope: §float§;
+  cost: §float§;
+  current: §struct(x int, y int, cost int, slope float)§;
+  well: §struct(x int, y int, yield int)§;
+
+  slope <- §'-Infinity' :: float§[];
+  cost <- §'-Infinity' :: float§[];
+  yield <- §
+    SELECT abs(p.c)
+    FROM   endpoints AS p
+    WHERE  p.x = {0}
+    AND    p.y = {1}
+  §[pivot_x, pivot_y];
+
+  LOOP loop {
+    current <- §
+      SELECT  {{x: e.x, y: e.y, cost: actual_cost, slope: rot}}
+      FROM    endpoints AS e,
+      LATERAL (SELECT (e.x - {0}) :: float / (e.y - {1}),
+                      CASE WHEN pivot_y > e.y THEN -e.c ELSE e.c END) AS _(rot, actual_cost)
+      WHERE   e.y <> {1}
+      AND     (rot > {2} OR
+               rot = {2} AND actual_cost < {3})
+      ORDER BY rot, actual_cost DESC
+      LIMIT 1
+    §[pivot_x, pivot_y, slope, cost];
+
+    IF §{0} IS NULL§[current] THEN {
+      EMIT §{0}§[well];
+      STOP
+    } ELSE NOOP;
+
+    slope <- §{0}.slope§[current];
+    cost <- §{0}.cost§[current];
+    yield <- §{0} + {1}§[yield, cost];
+
+    IF §{0} IS NULL OR {1} > {0}.yield§[well, yield]
+    THEN well <- §{{x: {0}.x, y: {0}.y, yield: {1}}}§[current, yield]
+    ELSE NOOP
+  }
+}
