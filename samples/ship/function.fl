@@ -1,0 +1,28 @@
+FUN preferred_shipmode(custkey: §int§) -> §text§: {
+  ground: §int§;
+  air:    §int§;
+  mail:   §int§;
+
+  ground <- §
+    SELECT COUNT(*)
+    FROM   lineitem AS l, orders AS o
+    WHERE  l.l_orderkey = o.o_orderkey AND o.o_custkey = {0}
+    AND    l.l_shipmode IN ('RAIL', 'TRUCK')
+  §[custkey];
+  air <- §
+    SELECT COUNT(*)
+    FROM   lineitem AS l, orders AS o
+    WHERE  l.l_orderkey = o.o_orderkey AND o.o_custkey = {0}
+    AND    l.l_shipmode IN ('AIR', 'AIR REG')
+  §[custkey];
+  mail <- §
+    SELECT COUNT(*)
+    FROM   lineitem AS l, orders AS o
+    WHERE  l.l_orderkey = o.o_orderkey AND o.o_custkey = {0}
+    AND    l.l_shipmode = 'MAIL'
+  §[custkey];
+
+  IF §{0} >= {1} AND {0} >= {2}§[ground,air,mail] THEN EMIT §'ground'§[] ELSE
+  IF §{0} >= {1} AND {0} >= {2}§[air,ground,mail] THEN EMIT §'air'§[]    ELSE
+  IF §{0} >= {1} AND {0} >= {2}§[mail,ground,air] THEN EMIT §'mail'§[]   ELSE STOP
+}
