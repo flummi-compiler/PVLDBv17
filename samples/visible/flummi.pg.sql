@@ -6,17 +6,20 @@ WITH RECURSIVE
     (SELECT 'jump' AS "%kind%",
             'entry' AS "%label%",
             CAST(NULL AS float) AS "angle",
-            CAST(((x,0)) AS point) AS "here",
+            CAST((point(x,0)) AS point) AS "here",
             CAST(NULL AS float) AS "hhere",
             CAST(NULL AS int) AS "i",
             CAST(NULL AS point) AS "loc",
             CAST(NULL AS float) AS "max_angle",
             CAST((256) AS int) AS "resolution",
             CAST(NULL AS point) AS "step",
-            CAST(((x,100)) AS point) AS "there",
+            CAST((point(x,99)) AS point) AS "there",
             CAST(NULL AS bool) AS "%result%")
       UNION ALL -- recursive union!
     (WITH
+      "%loop%"("%kind%", "%label%", "angle", "here", "hhere", "i", "loc", "max_angle", "resolution", "step", "there", "%result%") AS (
+        SELECT * FROM "%loop%"
+      ),
       "loop_head"("%kind%", "%label%", "angle", "here", "hhere", "i", "loc", "max_angle", "resolution", "step", "there", "%result%") AS (
         WITH
           "%inputs%"("angle", "here", "hhere", "i", "loc", "max_angle", "resolution", "step", "there") AS (
@@ -59,13 +62,13 @@ WITH RECURSIVE
             SELECT CAST((("%inputs%"."angle")) AS float) AS "angle",
                    CAST((("%inputs%"."here")) AS point) AS "here",
                    CAST((SELECT SUM(s.z * (2-dist)^2) / SUM((2-dist)^2) AS hhere
-                         FROM   surface AS s, LATERAL (SELECT (sqrt((s.x-("%inputs%"."here").x)^2 + (s.y-("%inputs%"."here").y)^2))) AS _(dist)
+                         FROM   surface AS s, LATERAL (SELECT (sqrt((s.x-("%inputs%"."here")[0])^2 + (s.y-("%inputs%"."here")[1])^2))) AS _(dist)
                          WHERE  dist < 2) AS float) AS "hhere",
                    CAST((1) AS int) AS "i",
                    CAST((("%inputs%"."here")) AS point) AS "loc",
                    CAST((NULL :: float) AS float) AS "max_angle",
                    CAST((("%inputs%"."resolution")) AS int) AS "resolution",
-                   CAST((((("%inputs%"."there").x - ("%inputs%"."here").x) / ("%inputs%"."resolution"), (("%inputs%"."there").y - ("%inputs%"."here").y) / ("%inputs%"."resolution")) :: point) AS point) AS "step",
+                   CAST(((("%inputs%"."there") - ("%inputs%"."here")) / ("%inputs%"."resolution")) AS point) AS "step",
                    CAST((("%inputs%"."there")) AS point) AS "there"
             FROM "%inputs%"
           )
@@ -138,7 +141,7 @@ WITH RECURSIVE
             SELECT CAST((("%inputs%"."here")) AS point) AS "here",
                    CAST((("%inputs%"."hhere")) AS float) AS "hhere",
                    CAST((("%inputs%"."i") + 1) AS int) AS "i",
-                   CAST(((("%inputs%"."loc").x + ("%inputs%"."step").x, ("%inputs%"."loc").y + ("%inputs%"."step").y) :: point) AS point) AS "loc",
+                   CAST((("%inputs%"."loc") + ("%inputs%"."step")) AS point) AS "loc",
                    CAST((("%inputs%"."max_angle")) AS float) AS "max_angle",
                    CAST((("%inputs%"."resolution")) AS int) AS "resolution",
                    CAST((("%inputs%"."step")) AS point) AS "step",
@@ -162,7 +165,7 @@ WITH RECURSIVE
             SELECT CAST((("%inputs%"."here")) AS point) AS "here",
                    CAST((("%inputs%"."hhere")) AS float) AS "hhere",
                    CAST((SELECT SUM(s.z * (2-dist)^2) / SUM((2-dist)^2) AS hhere
-                         FROM   surface AS s, LATERAL (SELECT (sqrt((s.x-("%inputs%"."loc").x)^2 + (s.y-("%inputs%"."loc").y)^2))) AS _(dist)
+                         FROM   surface AS s, LATERAL (SELECT (sqrt((s.x-("%inputs%"."loc")[0])^2 + (s.y-("%inputs%"."loc")[1])^2))) AS _(dist)
                          WHERE  dist < 2) AS float) AS "hloc",
                    CAST((("%inputs%"."i")) AS int) AS "i",
                    CAST((("%inputs%"."loc")) AS point) AS "loc",
@@ -186,7 +189,7 @@ WITH RECURSIVE
             AND    "%label%"='inter7'
           ),
           "%assign%"("angle", "here", "hhere", "i", "loc", "max_angle", "resolution", "step", "there") AS (
-            SELECT CAST((degrees(atan((("%inputs%"."hloc") - ("%inputs%"."hhere")) / sqrt((("%inputs%"."loc").x - ("%inputs%"."here").x) ** 2 + (("%inputs%"."loc").y - ("%inputs%"."here").y) ** 2)))) AS float) AS "angle",
+            SELECT CAST((degrees(atan((("%inputs%"."hloc") - ("%inputs%"."hhere")) / (("%inputs%"."loc") <-> ("%inputs%"."here"))))) AS float) AS "angle",
                    CAST((("%inputs%"."here")) AS point) AS "here",
                    CAST((("%inputs%"."hhere")) AS float) AS "hhere",
                    CAST((("%inputs%"."i")) AS int) AS "i",
