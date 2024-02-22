@@ -12,7 +12,8 @@ In our paper we do not present each of the samples in all possible implementatio
 ┊
 ├╴ samples/                 #   - Collection of samples presented in the paper
 │  ├╴ <name>/               #     - Collection of all variants and presentations of a given sample
-│  │  ├╴ cfg.pdf            #       - Rendering of the optimized CFG
+│  │  ├╴ cfg.initial.pdf    #       - Rendering of the intial CFG
+│  │  ├╴ cfg.optimized.pdf  #       - Rendering of the optimized CFG
 │  │  ├╴ flummi.<dbms>.sql  #       - Calling query using Flummi-compiled function (for a specific DBMS)
 │  │  ├╴ function.fl        #       - Equivalent imperative version for DuckDB
 │  │  ├╴ lateral.<dbms>.sql #       - Calling query using PL/SQL-to-SQL-compiled function (for a specific DBMS) (optional, see below)
