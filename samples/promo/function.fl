@@ -1,0 +1,48 @@
+FUN (givenYear: §int§) -> §text§: {
+  ratioCatalog: §real§;
+  ratioStore:   §real§;
+  ratioWeb:     §real§;
+  maxRatio:     §text§;
+
+  ratioCatalog <- §
+    SELECT COALESCE(
+                    COUNT(*) FILTER (WHERE p_channel_email='Y'  OR p_channel_catalog='Y'  OR p_channel_dmail='Y') :: real /
+             NULLIF(COUNT(*) FILTER (WHERE p_channel_email='N' AND p_channel_catalog='N' AND p_channel_dmail='N') :: real,0),
+             '+Inf' :: real
+           )
+    FROM   catalog_sales, promotion, date_dim
+    WHERE  cs_sold_date_sk = d_date_sk
+    AND    d_year = {0}
+    AND    cs_promo_sk = p_promo_sk
+  §[givenYear];
+  ratioStore   <- §
+    SELECT COALESCE(
+                    COUNT(*) FILTER (WHERE p_channel_email='Y'  OR p_channel_catalog='Y'  OR p_channel_dmail='Y') :: real /
+             NULLIF(COUNT(*) FILTER (WHERE p_channel_email='N' AND p_channel_catalog='N' AND p_channel_dmail='N') :: real,0),
+             '+Inf' :: real
+           )
+    FROM   store_sales, promotion, date_dim
+    WHERE  ss_sold_date_sk = d_date_sk
+    AND    d_year = {0}
+    AND    ss_promo_sk = p_promo_sk
+  §[givenYear];
+  ratioWeb     <- §
+    SELECT COALESCE(
+                    COUNT(*) FILTER (WHERE p_channel_email='Y'  OR p_channel_catalog='Y'  OR p_channel_dmail='Y') :: real /
+             NULLIF(COUNT(*) FILTER (WHERE p_channel_email='N' AND p_channel_catalog='N' AND p_channel_dmail='N') :: real,0),
+             '+Inf' :: real
+           )
+    FROM   web_sales, promotion, date_dim
+    WHERE  ws_sold_date_sk = d_date_sk
+    AND    d_year = {0}
+    AND    ws_promo_sk = p_promo_sk
+  §[givenYear];
+
+       IF §{0} >= {1} AND {0} >= {2}§[ratioWeb, ratioCatalog, ratioStore] THEN maxRatio <- §'Web'§[]
+  ELSE IF §{0} >= {1} AND {0} >= {2}§[ratioWeb, ratioCatalog, ratioStore] THEN maxRatio <- §'Web'§[]
+  ELSE IF §{0} >= {1} AND {0} >= {2}§[ratioWeb, ratioCatalog, ratioStore] THEN maxRatio <- §'Web'§[]
+  ELSE                                                                         maxRatio <- §'NULL'§[];
+
+  EMIT §{0}§[maxRatio];
+  STOP
+}
