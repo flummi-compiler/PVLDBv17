@@ -12,8 +12,7 @@ In our submission we do not present each of the samples in all possible implemen
 ┊
 ├╴ samples/                 #   - Collection of samples presented in the submission
 │  ├╴ <name>/               #     - Collection of all variants and presentations of a given sample
-│  │  ├╴ cfg.initial.pdf    #       - Rendering of the intial CFG
-│  │  ├╴ cfg.optimized.pdf  #       - Rendering of the optimized CFG
+│  │  ├╴ cfg.pdf            #       - Rendering of the CFG
 │  │  ├╴ flummi.<dbms>.sql  #       - Calling query using Flummi-compiled function (for a specific DBMS)
 │  │  ├╴ function.fl        #       - Equivalent imperative version for DuckDB
 │  │  ├╴ lateral.<dbms>.sql #       - Calling query using PL/SQL-to-SQL-compiled function (for a specific DBMS) (optional, see below)
