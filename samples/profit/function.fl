@@ -1,0 +1,25 @@
+FUN (startDate: §DATE§, endDate: §DATE§, givenStore: §INT§) -> §struct(dt DATE, profit DECIMAL(15,2))§: {
+  dateSk   : §INT§;
+  dayProfit: §DECIMAL(15,2)§;
+
+  LOOP loop {
+    IF §{0} > {1}§[startDate, endDate] THEN STOP ELSE NOOP;
+
+    dateSk <- §
+      SELECT d_data_sk
+      FROM   date_dim
+      WHERE  d_date = {0}
+    §[startDate];
+
+    dayProfit <- §
+      SELECT SUM(ss_net_profit)
+      FROM   store_sales
+      WHERE  ss_sold_date_sk = {0}
+      AND    ss_store_sk = {1}
+    §[dateSk, givenStore];
+
+    EMIT §{{ dt: {0}, profit: {1} }}§[startDate, dayProfit];
+
+    startDate <- §{0} + INTERVAL 1 DAY§[startDate]
+  }
+}
