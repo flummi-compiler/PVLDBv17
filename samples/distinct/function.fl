@@ -1,0 +1,30 @@
+FUN (list: §text§, delim: §char§) -> §bool§: {
+  pos: §int§;
+  part: §text§;
+
+  list <- §trim({0}) || {1}§[list, delim];
+  pos <- §strpos({0}, {1})§[list, delim];
+
+  LOOP loop {
+    IF §{0} <= 0§[pos]
+    THEN {
+      EMIT §TRUE§[];
+      BREAK loop
+    }
+    ELSE NOOP;
+
+    part <- §trim(left({0}, {1}))§[list,pos];
+    list <- §substring({0}, {1} + 1, len({0}))§[list, pos];
+
+    IF §strpos({0}, {1}) <> 0§[list, part]
+    THEN {
+      EMIT §FALSE§[];
+      BREAK loop
+    }
+    ELSE NOOP;
+
+    pos <- §strpos({0}, {1})§[list, delim]
+  };
+
+  STOP
+}

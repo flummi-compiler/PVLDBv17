@@ -25,6 +25,7 @@ This repository only contains the variants we present in the submission, so not 
 
 | Sample     | `flummi.duckdb.sql` | `flummi.pg.sql` | `flummi.umbra.sql` | `lateral.duckdb.sql` | `lateral.pg.sql` | `plsql.sql` | `umbrascript.sql` |
 | :--------- | :-----------------: | :-------------: | :----------------: | :------------------: | :--------------: | :---------: | :---------------: |
+| `distinct` |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |         ✘         |
 | `force`    |          ✔︎          |        ✔︎        |         ✘          |          ✘           |        ✘         |      ✘      |         ✘         |
 | `giftwrap` |          ✔︎          |        ✔︎        |         ✔︎          |          ✔︎           |        ✔︎         |      ✔︎      |         ✔︎         |
 | `late`     |          ✔︎          |        ✘        |         ✔︎          |          ✘           |        ✘         |      ✘      |         ✔︎         |
