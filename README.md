@@ -17,28 +17,29 @@ In our submission we do not present each of the samples in all possible implemen
 │  │  ├╴ function.fl        #       - Equivalent imperative version for DuckDB
 │  │  ├╴ lateral.<dbms>.sql #       - Calling query using PL/SQL-to-SQL-compiled function (for a specific DBMS) (optional, see below)
 │  │  ├╴ plsql.sql          #       - Equivalent PL/SQL version (optional, see below)
+│  │  ├╴ python.py          #       - Equivalent Python version (optional, see below)
 │  │  └╴ umbrascript.sql    #       - Equivalent UmbraScript version (optional, see below)
 ┊  ┊
 ```
 
 This repository only contains the variants we present in the submission, so not all combinations of features and DBMS are present. The following table shows which implementations this repository provides for which samples.
 
-| Sample     | `flummi.duckdb.sql` | `flummi.pg.sql` | `flummi.umbra.sql` | `lateral.duckdb.sql` | `lateral.pg.sql` | `plsql.sql` | `umbrascript.sql` |
-| :--------- | :-----------------: | :-------------: | :----------------: | :------------------: | :--------------: | :---------: | :---------------: |
-| `distinct` |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |         ✘         |
-| `force`    |          ✔︎          |        ✔︎        |         ✘          |          ✘           |        ✘         |      ✘      |         ✘         |
-| `giftwrap` |          ✔︎          |        ✔︎        |         ✔︎          |          ✔︎           |        ✔︎         |      ✔︎      |         ✔︎         |
-| `late`     |          ✔︎          |        ✘        |         ✔︎          |          ✘           |        ✘         |      ✘      |         ✔︎         |
-| `march`    |          ✔︎          |        ✔︎        |         ✘          |          ✘           |        ✘         |      ✘      |         ✘         |
-| `margin`   |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |         ✔︎         |
-| `oil`      |          ✔︎          |        ✔︎        |         ✔︎          |          ✔︎           |        ✔︎         |      ✔︎      |         ✘         |
-| `packing`  |          ✔︎          |        ✔︎        |         ✘          |          ✔︎           |        ✔︎         |      ✔︎      |         ✔︎         |
-| `profit`   |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |         ✘         |
-| `promo`    |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |         ✘         |
-| `ray`      |          ✔︎          |        ✘        |         ✔︎          |          ✘           |        ✘         |      ✘      |         ✘         |
-| `savings`  |          ✔︎          |        ✔︎        |         ✔︎          |          ✘           |        ✘         |      ✘      |         ✘         |
-| `sched`    |          ✔︎          |        ✘        |         ✔︎          |          ✘           |        ✘         |      ✘      |         ✘         |
-| `ship`     |          ✔︎          |        ✔︎        |         ✘          |          ✔︎           |        ✔︎         |      ✔︎      |         ✘         |
-| `supply`   |          ✔︎          |        ✘        |         ✔︎          |          ✘           |        ✘         |      ✘      |         ✔︎         |
-| `visible`  |          ✔︎          |        ✔︎        |         ✔︎          |          ✘           |        ✘         |      ✘      |         ✔︎         |
-| `vm`       |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |         ✘         |
+| Sample     | `flummi.duckdb.sql` | `flummi.pg.sql` | `flummi.umbra.sql` | `lateral.duckdb.sql` | `lateral.pg.sql` | `plsql.sql` | `python.py` | `umbrascript.sql` |
+| :--------- | :-----------------: | :-------------: | :----------------: | :------------------: | :--------------: | :---------: | :---------: | :---------------: |
+| `distinct` |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |      ✘      |         ✘         |
+| `force`    |          ✔︎          |        ✔︎        |         ✘          |          ✘           |        ✘         |      ✘      |      ✘      |         ✘         |
+| `giftwrap` |          ✔︎          |        ✔︎        |         ✔︎          |          ✔︎           |        ✔︎         |      ✔︎      |      ✔︎      |         ✔︎         |
+| `late`     |          ✔︎          |        ✘        |         ✔︎          |          ✘           |        ✘         |      ✘      |      ✘      |         ✔︎         |
+| `march`    |          ✔︎          |        ✔︎        |         ✘          |          ✘           |        ✘         |      ✘      |      ✘      |         ✘         |
+| `margin`   |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |      ✘      |         ✔︎         |
+| `oil`      |          ✔︎          |        ✔︎        |         ✔︎          |          ✔︎           |        ✔︎         |      ✔︎      |      ✘      |         ✘         |
+| `packing`  |          ✔︎          |        ✔︎        |         ✘          |          ✔︎           |        ✔︎         |      ✔︎      |      ✔︎      |         ✔︎         |
+| `profit`   |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |      ✘      |         ✘         |
+| `promo`    |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |      ✘      |         ✘         |
+| `ray`      |          ✔︎          |        ✘        |         ✔︎          |          ✘           |        ✘         |      ✘      |      ✘      |         ✘         |
+| `savings`  |          ✔︎          |        ✔︎        |         ✔︎          |          ✘           |        ✘         |      ✘      |      ✘      |         ✘         |
+| `sched`    |          ✔︎          |        ✘        |         ✔︎          |          ✘           |        ✘         |      ✘      |      ✘      |         ✘         |
+| `ship`     |          ✔︎          |        ✔︎        |         ✘          |          ✔︎           |        ✔︎         |      ✔︎      |      ✔︎      |         ✘         |
+| `supply`   |          ✔︎          |        ✘        |         ✔︎          |          ✘           |        ✘         |      ✘      |      ✔︎      |         ✔︎         |
+| `visible`  |          ✔︎          |        ✔︎        |         ✔︎          |          ✘           |        ✘         |      ✘      |      ✘      |         ✔︎         |
+| `vm`       |          ✔︎          |        ✘        |         ✘          |          ✘           |        ✘         |      ✘      |      ✘      |         ✘         |
